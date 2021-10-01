@@ -50,14 +50,18 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushNamed("/sports-news");
   }
 
+  goToSignUp() {
+    Navigator.of(context).pushNamed("/sign-up");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: AppBar(
-              title: Text("Home Page"),
-            ),
+            appBar: AppBar(title: Text("Home Page"), actions: [
+              GestureDetector(onTap: goToSignUp, child: Text("Sign Up")),
+            ]),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
                   canvasColor: Colors.blue,
