@@ -25,12 +25,14 @@ class _SignUpState extends State<SignUp> {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+      var signCre =
+          await FirebaseAuth.instance.signInWithCredential(credential);
       await db
           .collection("users")
-          .doc(googleUser.id)
+          .doc(signCre.user.uid)
           .set({"Name": googleUser.displayName, "Email": googleUser.email});
 
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      // return await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
       print(e.toString());
     }

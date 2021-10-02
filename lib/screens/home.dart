@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutternewsapp/models/everything-model.dart';
+import 'package:flutternewsapp/screens/user-profile.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:animations/animations.dart';
 
@@ -30,6 +34,11 @@ class _HomeState extends State<Home> {
   // Map<String, dynamic> funcNames = [stories,];
 
 // drawer functions
+
+  goToFavorites() {
+    Navigator.of(context).pushNamed("/my-favorites");
+  }
+
   goToHome() {
     Navigator.of(context).pushNamed("/home");
   }
@@ -54,13 +63,54 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushNamed("/sign-up");
   }
 
+  final user = FirebaseAuth.instance.currentUser;
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final googleSignIn = GoogleSignIn();
+  signOut() async {
+    await googleSignIn.disconnect();
+    await auth.signOut();
+
+    Navigator.of(context).pushNamed("/sign-up");
+  }
+
+  goToProfileScreen() {
+    Navigator.of(context).pushNamed("/profile-screen");
+    // Navigator.of(context).pushAndRemoveUntil(
+    //     MaterialPageRoute(builder: (context) => UserProfile()),
+    //     (route) => false);
+  }
+
+  addToFavorites() async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    // var title = "my first post";
+    FirebaseAuth.instance.currentUser == null
+        ? Text("Kindly logged in first")
+        : db
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .collection("posts")
+            .add({
+            // "title": ,
+            // "description": title,
+          });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(title: Text("Home Page"), actions: [
-              GestureDetector(onTap: goToSignUp, child: Text("Sign Up")),
+              GestureDetector(onTap: signOut, child: Text("signOut")),
+              ElevatedButton(
+                onPressed: FirebaseAuth.instance.currentUser == null
+                    ? goToSignUp
+                    : goToProfileScreen,
+                child: FirebaseAuth.instance.currentUser == null
+                    ? Text("SignUp")
+                    : Text("My profile"),
+              )
             ]),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
@@ -97,6 +147,31 @@ class _HomeState extends State<Home> {
                         //             )),
                         //       );
                         //     }),
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: GestureDetector(
+                            onTap: goToFavorites,
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                  bottom:
+                                      BorderSide(width: 2, color: Colors.white),
+                                )),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "My Favorites",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                )),
+                          ),
+                        ),
+
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
@@ -318,6 +393,40 @@ class _HomeState extends State<Home> {
                                                 subtitle: Text(
                                                     everything[index].author ??
                                                         ''),
+                                                leading: IconButton(
+                                                  icon: Icon(Icons.add),
+                                                  onPressed: () async {
+                                                    var title =
+                                                        everything[index].title;
+                                                    var description =
+                                                        everything[index]
+                                                            .description;
+                                                    var image =
+                                                        everything[index]
+                                                            .urlToImage;
+
+                                                    FirebaseFirestore db =
+                                                        FirebaseFirestore
+                                                            .instance;
+                                                    FirebaseAuth.instance
+                                                                .currentUser ==
+                                                            null
+                                                        ? print(
+                                                            "Kindly logged in first")
+                                                        : db
+                                                            .collection("users")
+                                                            .doc(FirebaseAuth
+                                                                .instance
+                                                                .currentUser
+                                                                .uid)
+                                                            .collection("posts")
+                                                            .add({
+                                                            "title": title,
+                                                            "description":
+                                                                description,
+                                                          });
+                                                  },
+                                                ),
                                               ),
                                             ],
                                           ),

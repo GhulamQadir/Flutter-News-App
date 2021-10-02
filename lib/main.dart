@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutternewsapp/screens/SignUp.dart';
+import 'package:flutternewsapp/screens/favorites.dart';
 import 'package:flutternewsapp/screens/headlines.dart';
 import 'package:flutternewsapp/screens/home.dart';
 import 'package:flutternewsapp/screens/popular-news.dart';
 import 'package:flutternewsapp/screens/sports-news.dart';
 import 'package:flutternewsapp/screens/top-stories.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutternewsapp/screens/user-profile.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +44,8 @@ class MyApp extends StatelessWidget {
               "/popular-news": (context) => PopularNews(),
               "/sports-news": (context) => SportsNews(),
               "/sign-up": (context) => SignUp(),
+              "/my-favorites": (context) => MyFavorites(),
+              "/profile-screen": (context) => UserProfile(),
             },
           );
         }
