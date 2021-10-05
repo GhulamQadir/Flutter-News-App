@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutternewsapp/screens/SignUp.dart';
+import 'package:flutternewsapp/screens/auth/Login.dart';
+import 'package:flutternewsapp/screens/auth/SignUp.dart';
+import 'package:flutternewsapp/screens/auth/authPages.dart';
 import 'package:flutternewsapp/screens/favorites.dart';
 import 'package:flutternewsapp/screens/headlines.dart';
 import 'package:flutternewsapp/screens/home.dart';
@@ -44,8 +46,10 @@ class MyApp extends StatelessWidget {
               "/popular-news": (context) => PopularNews(),
               "/sports-news": (context) => SportsNews(),
               "/sign-up": (context) => SignUp(),
+              "/login": (context) => LoginScreen(),
               "/my-favorites": (context) => MyFavorites(),
               "/profile-screen": (context) => UserProfile(),
+              "/auth-page": (context) => AuthPagesMove(),
             },
           );
         }

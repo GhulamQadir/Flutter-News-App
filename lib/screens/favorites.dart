@@ -13,10 +13,10 @@ class _MyFavoritesState extends State<MyFavorites> {
   String description;
   final firebaseUser = FirebaseAuth.instance.currentUser;
 
-  Stream usersStream;
+  Stream postStream;
 
   void initState() {
-    usersStream = FirebaseFirestore.instance
+    postStream = FirebaseFirestore.instance
         .collection("users")
         .doc(firebaseUser.uid)
         .collection("posts")
@@ -41,7 +41,7 @@ class _MyFavoritesState extends State<MyFavorites> {
               body: Center(
                 child: Container(
                     child: StreamBuilder<QuerySnapshot<Object>>(
-                  stream: usersStream,
+                  stream: postStream,
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
                     print("Start of builder method");
@@ -66,6 +66,7 @@ class _MyFavoritesState extends State<MyFavorites> {
                         return SingleChildScrollView(
                           child: Column(
                             children: [
+                              Image.network(data["image"]),
                               Text(
                                 "Title is:   ${data["title"]} ?? ''",
                                 style: TextStyle(fontSize: 18),

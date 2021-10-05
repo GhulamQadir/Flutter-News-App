@@ -7,6 +7,9 @@ import 'package:flutternewsapp/screens/user-profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:animations/animations.dart';
+import 'package:path/path.dart' as path;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'dart:io';
 
 class Home extends StatefulWidget {
   @override
@@ -59,8 +62,8 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushNamed("/sports-news");
   }
 
-  goToSignUp() {
-    Navigator.of(context).pushNamed("/sign-up");
+  goToLoginScreen() {
+    Navigator.of(context).pushNamed("/login");
   }
 
   final user = FirebaseAuth.instance.currentUser;
@@ -68,10 +71,10 @@ class _HomeState extends State<Home> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
   signOut() async {
-    await googleSignIn.disconnect();
+    // await googleSignIn.disconnect();
     await auth.signOut();
 
-    Navigator.of(context).pushNamed("/sign-up");
+    Navigator.of(context).pushNamed("/auth-page");
   }
 
   goToProfileScreen() {
@@ -105,10 +108,10 @@ class _HomeState extends State<Home> {
               GestureDetector(onTap: signOut, child: Text("signOut")),
               ElevatedButton(
                 onPressed: FirebaseAuth.instance.currentUser == null
-                    ? goToSignUp
+                    ? goToLoginScreen
                     : goToProfileScreen,
                 child: FirebaseAuth.instance.currentUser == null
-                    ? Text("SignUp")
+                    ? Text("Login")
                     : Text("My profile"),
               )
             ]),
@@ -401,13 +404,15 @@ class _HomeState extends State<Home> {
                                                     var description =
                                                         everything[index]
                                                             .description;
-                                                    var image =
+
+                                                    final image =
                                                         everything[index]
                                                             .urlToImage;
 
                                                     FirebaseFirestore db =
                                                         FirebaseFirestore
                                                             .instance;
+
                                                     FirebaseAuth.instance
                                                                 .currentUser ==
                                                             null
@@ -424,6 +429,7 @@ class _HomeState extends State<Home> {
                                                             "title": title,
                                                             "description":
                                                                 description,
+                                                            "image": image,
                                                           });
                                                   },
                                                 ),
@@ -458,8 +464,9 @@ class _HomeState extends State<Home> {
                                                 child: ListTile(
                                                   title: Text(
                                                     everything[index]
-                                                        .source
-                                                        .name,
+                                                            .source
+                                                            .name ??
+                                                        '',
                                                     style: TextStyle(
                                                         fontSize: 15,
                                                         color: Colors.red),
@@ -477,7 +484,7 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                     child: Text(
-                                                  everything[index].title,
+                                                  everything[index].title ?? '',
                                                   style:
                                                       TextStyle(fontSize: 16),
                                                 )),
@@ -490,7 +497,9 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                     child: Text(
-                                                  everything[index].description,
+                                                  everything[index]
+                                                          .description ??
+                                                      '',
                                                   style:
                                                       TextStyle(fontSize: 15),
                                                 )),
