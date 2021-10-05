@@ -1,16 +1,16 @@
-class Source {
+class HeadlinesSource {
   String id;
   String name;
 
-  Source({this.id, this.name});
+  HeadlinesSource({this.id, this.name});
 
-  factory Source.fromJson(Map<String, dynamic> json) {
-    return Source(id: json['id'], name: json['name']);
+  factory HeadlinesSource.fromJson(Map<String, dynamic> json) {
+    return HeadlinesSource(id: json['id'], name: json['name']);
   }
 }
 
-class TopHeadlines {
-  Source source;
+class HeadlinesApi {
+  HeadlinesSource headlinesSource;
   var title;
   var author;
   var description;
@@ -19,8 +19,8 @@ class TopHeadlines {
   var publishedAt;
   var content;
 
-  TopHeadlines(
-      {this.source,
+  HeadlinesApi(
+      {this.headlinesSource,
       this.title,
       this.author,
       this.description,
@@ -29,9 +29,9 @@ class TopHeadlines {
       this.publishedAt,
       this.content});
 
-  factory TopHeadlines.fromJson(Map<String, dynamic> json) {
-    return TopHeadlines(
-      source: Source.fromJson(json['source']),
+  factory HeadlinesApi.fromJson(Map<String, dynamic> json) {
+    return HeadlinesApi(
+      headlinesSource: HeadlinesSource.fromJson(json['source']),
       author: json['author'] as String,
       title: json['title'] as String,
       description: json['description'] as String,

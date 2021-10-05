@@ -1,8 +1,15 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutternewsapp/models/top-headlines-model.dart';
+import 'package:flutternewsapp/models/everything-model.dart';
+import 'package:flutternewsapp/screens/user-profile.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:animations/animations.dart';
+import 'package:path/path.dart' as path;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'dart:io';
 
 class Home extends StatefulWidget {
   @override
@@ -10,8 +17,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future<List<TopHeadlines>> getTopHeadlines() async {
-    // var topHeadlines = [];
+  Future<List<Everything>> getTopHeadlines() async {
     var response = await http.get(Uri.parse(
         "https://newsapi.org/v2/everything?q=bitcoin&apiKey=157c9287a12840a49bc2a7d0f9228c01"));
 
@@ -19,8 +25,8 @@ class _HomeState extends State<Home> {
       Map<String, dynamic> jsonData = jsonDecode(response.body);
       List<dynamic> body = jsonData['articles'];
 
-      List<TopHeadlines> topHeadlines =
-          body.map((dynamic item) => TopHeadlines.fromJson(item)).toList();
+      List<Everything> topHeadlines =
+          body.map((dynamic item) => Everything.fromJson(item)).toList();
       return topHeadlines;
     } else {
       throw ("Can't get the articles");
@@ -31,6 +37,11 @@ class _HomeState extends State<Home> {
   // Map<String, dynamic> funcNames = [stories,];
 
 // drawer functions
+
+  goToFavorites() {
+    Navigator.of(context).pushNamed("/my-favorites");
+  }
+
   goToHome() {
     Navigator.of(context).pushNamed("/home");
   }
@@ -51,14 +62,59 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushNamed("/sports-news");
   }
 
+  goToLoginScreen() {
+    Navigator.of(context).pushNamed("/login");
+  }
+
+  final user = FirebaseAuth.instance.currentUser;
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final googleSignIn = GoogleSignIn();
+  signOut() async {
+    // await googleSignIn.disconnect();
+    await auth.signOut();
+
+    Navigator.of(context).pushNamed("/auth-page");
+  }
+
+  goToProfileScreen() {
+    Navigator.of(context).pushNamed("/profile-screen");
+    // Navigator.of(context).pushAndRemoveUntil(
+    //     MaterialPageRoute(builder: (context) => UserProfile()),
+    //     (route) => false);
+  }
+
+  addToFavorites() async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    // var title = "my first post";
+    FirebaseAuth.instance.currentUser == null
+        ? Text("Kindly logged in first")
+        : db
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .collection("posts")
+            .add({
+            // "title": ,
+            // "description": title,
+          });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: AppBar(
-              title: Text("Home Page"),
-            ),
+            appBar: AppBar(title: Text("Home Page"), actions: [
+              GestureDetector(onTap: signOut, child: Text("signOut")),
+              ElevatedButton(
+                onPressed: FirebaseAuth.instance.currentUser == null
+                    ? goToLoginScreen
+                    : goToProfileScreen,
+                child: FirebaseAuth.instance.currentUser == null
+                    ? Text("Login")
+                    : Text("My profile"),
+              )
+            ]),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
                   canvasColor: Colors.blue,
@@ -94,6 +150,31 @@ class _HomeState extends State<Home> {
                         //             )),
                         //       );
                         //     }),
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: GestureDetector(
+                            onTap: goToFavorites,
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                  bottom:
+                                      BorderSide(width: 2, color: Colors.white),
+                                )),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "My Favorites",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                )),
+                          ),
+                        ),
+
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
@@ -236,9 +317,9 @@ class _HomeState extends State<Home> {
             body: FutureBuilder(
                 future: getTopHeadlines(),
                 builder: (BuildContext context,
-                    AsyncSnapshot<List<TopHeadlines>> snapshot) {
+                    AsyncSnapshot<List<Everything>> snapshot) {
                   if (snapshot.hasData) {
-                    List<TopHeadlines> headlines = snapshot.data;
+                    List<Everything> everything = snapshot.data;
                     return SingleChildScrollView(
                       child: Column(
                         children: [
@@ -253,7 +334,7 @@ class _HomeState extends State<Home> {
                           ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: headlines.length,
+                            itemCount: everything.length,
                             itemBuilder: (context, index) => Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,13 +355,14 @@ class _HomeState extends State<Home> {
                                                 width: 300,
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
-                                                        image: headlines[index]
+                                                        image: everything[index]
                                                                     .urlToImage ==
                                                                 null
                                                             ? NetworkImage(
                                                                 "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
                                                             : NetworkImage(
-                                                                headlines[index]
+                                                                everything[
+                                                                        index]
                                                                     .urlToImage))),
                                               ),
                                               Padding(
@@ -296,7 +378,7 @@ class _HomeState extends State<Home> {
                                                     padding:
                                                         const EdgeInsets.all(5),
                                                     child: Text(
-                                                      headlines[index]
+                                                      everything[index]
                                                               .source
                                                               .name ??
                                                           '',
@@ -309,11 +391,48 @@ class _HomeState extends State<Home> {
                                               ),
                                               ListTile(
                                                 title: Text(
-                                                    headlines[index].title ??
+                                                    everything[index].title ??
                                                         ''),
                                                 subtitle: Text(
-                                                    headlines[index].author ??
+                                                    everything[index].author ??
                                                         ''),
+                                                leading: IconButton(
+                                                  icon: Icon(Icons.add),
+                                                  onPressed: () async {
+                                                    var title =
+                                                        everything[index].title;
+                                                    var description =
+                                                        everything[index]
+                                                            .description;
+
+                                                    final image =
+                                                        everything[index]
+                                                            .urlToImage;
+
+                                                    FirebaseFirestore db =
+                                                        FirebaseFirestore
+                                                            .instance;
+
+                                                    FirebaseAuth.instance
+                                                                .currentUser ==
+                                                            null
+                                                        ? print(
+                                                            "Kindly logged in first")
+                                                        : db
+                                                            .collection("users")
+                                                            .doc(FirebaseAuth
+                                                                .instance
+                                                                .currentUser
+                                                                .uid)
+                                                            .collection("posts")
+                                                            .add({
+                                                            "title": title,
+                                                            "description":
+                                                                description,
+                                                            "image": image,
+                                                          });
+                                                  },
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -329,13 +448,14 @@ class _HomeState extends State<Home> {
                                                 width: 300,
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
-                                                        image: headlines[index]
+                                                        image: everything[index]
                                                                     .urlToImage ==
                                                                 null
                                                             ? NetworkImage(
                                                                 "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
                                                             : NetworkImage(
-                                                                headlines[index]
+                                                                everything[
+                                                                        index]
                                                                     .urlToImage))),
                                               ),
                                               Padding(
@@ -343,15 +463,16 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: ListTile(
                                                   title: Text(
-                                                    headlines[index]
-                                                        .source
-                                                        .name,
+                                                    everything[index]
+                                                            .source
+                                                            .name ??
+                                                        '',
                                                     style: TextStyle(
                                                         fontSize: 15,
                                                         color: Colors.red),
                                                   ),
                                                   subtitle: Text(
-                                                    headlines[index].author ??
+                                                    everything[index].author ??
                                                         '',
                                                     style:
                                                         TextStyle(fontSize: 15),
@@ -363,7 +484,7 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                     child: Text(
-                                                  headlines[index].title,
+                                                  everything[index].title ?? '',
                                                   style:
                                                       TextStyle(fontSize: 16),
                                                 )),
@@ -376,17 +497,8 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                     child: Text(
-                                                  headlines[index].description,
-                                                  style:
-                                                      TextStyle(fontSize: 15),
-                                                )),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                    child: Text(
-                                                  headlines[index].content ??
+                                                  everything[index]
+                                                          .description ??
                                                       '',
                                                   style:
                                                       TextStyle(fontSize: 15),
@@ -397,7 +509,18 @@ class _HomeState extends State<Home> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                     child: Text(
-                                                  headlines[index]
+                                                  everything[index].content ??
+                                                      '',
+                                                  style:
+                                                      TextStyle(fontSize: 15),
+                                                )),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                    child: Text(
+                                                  everything[index]
                                                           .publishedAt ??
                                                       '',
                                                   style:
@@ -408,40 +531,6 @@ class _HomeState extends State<Home> {
                                           ),
                                         ));
                                       }),
-                                  //   child: Container(
-                                  //     height: 300,
-                                  //     width: 300,
-                                  //     decoration: BoxDecoration(
-                                  //         image: DecorationImage(
-                                  //             image: headlines[index].urlToImage == null
-                                  //                 ? NetworkImage(
-                                  //                     "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
-                                  //                 : NetworkImage(
-                                  //                     headlines[index].urlToImage))),
-                                  //   ),
-                                  // ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.only(left: 30),
-                                  //   child: Container(
-                                  //     decoration: BoxDecoration(
-                                  //         borderRadius: BorderRadius.circular(5)),
-                                  //     alignment: Alignment.topLeft,
-                                  //     child: Padding(
-                                  //       padding: const EdgeInsets.all(5),
-                                  //       child: Text(
-                                  //         headlines[index].source.name ?? '',
-                                  //         style: TextStyle(
-                                  //           color: Colors.red,
-                                  //         ),
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  // ListTile(
-                                  //   title: Text(headlines[index].title ?? ''),
-                                  //   subtitle: Text(headlines[index].author ?? ''),
-                                  // ),
-                                  // Text(headlines[index].url)
                                 )
                               ],
                             ),
