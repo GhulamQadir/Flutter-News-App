@@ -35,24 +35,24 @@ class _SignUpState extends State<SignUp> {
       final String userName = userNameController.text;
       final String email = emailController.text;
       final String password = passwordController.text;
-      // final String imageName = path.basename(imagePath);
+      final String imageName = path.basename(imagePath);
 
       FirebaseFirestore db = FirebaseFirestore.instance;
 
-      // firebase_storage.Reference ref =
-      //     firebase_storage.FirebaseStorage.instance.ref('/$imageName');
+      firebase_storage.Reference ref =
+          firebase_storage.FirebaseStorage.instance.ref('/$imageName');
 
-      // File file = File(imagePath);
-      // await ref.putFile(file);
+      File file = File(imagePath);
+      await ref.putFile(file);
 
       final UserCredential user = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      // String downloadUrl = await ref.getDownloadURL();
+      String downloadUrl = await ref.getDownloadURL();
 
       await db.collection("users").doc(user.user.uid).set({
         "userName": userName,
         "email": email,
-        // "image": downloadUrl,
+        "image": downloadUrl,
       });
 
       userNameController.clear();
@@ -99,13 +99,30 @@ class _SignUpState extends State<SignUp> {
                 //   ),
                 // ),
 
+                // GestureDetector(
+                //   onTap: pickImage,
+                //   child: CircleAvatar(
+                //     radius: 100,
+                //     // backgroundColor: Colors.transparent,
+                //     backgroundImage: NetworkImage(
+                //         "https://www.pngitem.com/pimgs/m/6-67022_dslr-camera-vector-icon-camera-vector-icon-png.png"),
+                //   ),
+                // ),
+
                 GestureDetector(
                   onTap: pickImage,
-                  child: CircleAvatar(
-                    radius: 100,
-                    // backgroundColor: Colors.transparent,
-                    backgroundImage: NetworkImage(
-                        "https://www.pngitem.com/pimgs/m/6-67022_dslr-camera-vector-icon-camera-vector-icon-png.png"),
+                  child: Container(
+                    height: 200,
+                    width: 250,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                      image: imagePath == null
+                          ? NetworkImage(
+                              "https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-camera-512.png")
+                          : FileImage(File(imagePath)),
+                      // NetworkImage(
+                      //     "https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-camera-512.png")
+                    )),
                   ),
                 ),
 

@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutternewsapp/models/everything-model.dart';
+import 'package:flutternewsapp/screens/popular-news.dart';
+import 'package:flutternewsapp/screens/sports-news.dart';
+import 'package:flutternewsapp/screens/top-stories.dart';
 import 'package:flutternewsapp/screens/user-profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -99,6 +102,9 @@ class _HomeState extends State<Home> {
           });
   }
 
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -115,6 +121,62 @@ class _HomeState extends State<Home> {
                     : Text("My profile"),
               )
             ]),
+            bottomNavigationBar: BottomNavigationBar(
+              // type: BottomNavigationBarType.fixed,
+              items: [
+                // BottomNavigationBarItem(
+                //   icon: Icon(
+                //     Icons.home,
+                //     size: 30,
+                //     color: Colors.purple[400],
+                //   ),
+                //   label: "Popular",
+                // ),
+                // BottomNavigationBarItem(
+                //   icon: Padding(
+                //     padding: const EdgeInsets.only(right: 40),
+                //     child: Icon(
+                //       Icons.favorite,
+                //       size: 30,
+                //       color: Colors.grey,
+                //     ),
+                //   ),
+                //   label: "Sports",
+                // ),
+                // BottomNavigationBarItem(
+                //   icon: Padding(
+                //     padding: const EdgeInsets.only(left: 40),
+                //     child: Icon(
+                //       Icons.add_shopping_cart,
+                //       size: 30,
+                //       color: Colors.grey,
+                //     ),
+                //   ),
+                //   label: "Stories",
+                // ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(
+                //     Icons.person,
+                //     size: 30,
+                //     color: Colors.grey,
+                //   ),
+                //   label: "Headlines",
+                // ),
+              ],
+              onTap: (value) {
+                final routes = [
+                  "/popular-news",
+                  "/sports-news",
+                  "/top-stories",
+                  "/headlines"
+                ];
+                _currentIndex = value;
+                Navigator.of(context).pushNamed(
+                  routes[value],
+                );
+              },
+              currentIndex: _currentIndex,
+            ),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
                   canvasColor: Colors.blue,
