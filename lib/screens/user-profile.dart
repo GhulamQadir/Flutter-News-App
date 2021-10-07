@@ -32,8 +32,8 @@ class _UserProfileState extends State<UserProfile> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
   signOut() async {
-    // await googleSignIn.disconnect();
     await auth.signOut();
+    await googleSignIn.disconnect();
 
     Navigator.of(context).pushNamed("/sign-up");
   }

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutternewsapp/screens/home.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -11,6 +12,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore db = FirebaseFirestore.instance;
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   final GoogleSignIn googleSignIn = new GoogleSignIn();
   Future<UserCredential> loginWithGoogle() async {
@@ -32,10 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
         "image": googleUser.photoUrl
       });
 
-      // return await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => Home()), (route) => false);
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  loginWithEmailPassword() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    final String email = emailController.text;
+    final String password = passwordController.text;
+    final UserCredential user =
+        await auth.signInWithEmailAndPassword(email: email, password: password);
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Home()), (route) => false);
   }
 
   goToSignUpScreen() {
@@ -72,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
                   child: TextFormField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: "Email",
                       prefixIcon: Icon(
@@ -90,6 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
                   child: TextFormField(
+                    controller: passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Password",
                       prefixIcon: Icon(
@@ -112,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                       width: 150,
                       child: TextButton(
-                          onPressed: () {},
+                          onPressed: loginWithEmailPassword,
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(

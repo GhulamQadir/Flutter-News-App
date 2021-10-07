@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutternewsapp/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -49,6 +49,8 @@ class _SignUpState extends State<SignUp> {
           email: email, password: password);
       String downloadUrl = await ref.getDownloadURL();
 
+      CircularProgressIndicator();
+
       await db.collection("users").doc(user.user.uid).set({
         "userName": userName,
         "email": email,
@@ -60,6 +62,8 @@ class _SignUpState extends State<SignUp> {
       passwordController.clear();
 
       print("Your registration has been completed !");
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => Home()), (route) => false);
     } catch (e) {
       print(e.message);
       showDialog(
@@ -88,27 +92,6 @@ class _SignUpState extends State<SignUp> {
                 SizedBox(
                   height: 20,
                 ),
-                // Center(
-                //   child: Container(
-                //     height: 150,
-                //     width: 200,
-                //     decoration: BoxDecoration(
-                //         image: DecorationImage(
-                //             image: NetworkImage(
-                //                 "https://previews.123rf.com/images/businessvector/businessvector1510/businessvector151000024/45788264-newspaper-icon.jpg"))),
-                //   ),
-                // ),
-
-                // GestureDetector(
-                //   onTap: pickImage,
-                //   child: CircleAvatar(
-                //     radius: 100,
-                //     // backgroundColor: Colors.transparent,
-                //     backgroundImage: NetworkImage(
-                //         "https://www.pngitem.com/pimgs/m/6-67022_dslr-camera-vector-icon-camera-vector-icon-png.png"),
-                //   ),
-                // ),
-
                 GestureDetector(
                   onTap: pickImage,
                   child: Container(
@@ -125,7 +108,6 @@ class _SignUpState extends State<SignUp> {
                     )),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
                   child: TextFormField(
@@ -168,6 +150,7 @@ class _SignUpState extends State<SignUp> {
                   padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
                   child: TextFormField(
                     controller: passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Password",
                       prefixIcon: Icon(

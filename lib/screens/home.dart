@@ -3,16 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutternewsapp/models/everything-model.dart';
-import 'package:flutternewsapp/screens/popular-news.dart';
-import 'package:flutternewsapp/screens/sports-news.dart';
-import 'package:flutternewsapp/screens/top-stories.dart';
-import 'package:flutternewsapp/screens/user-profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:animations/animations.dart';
-import 'package:path/path.dart' as path;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'dart:io';
 
 class Home extends StatefulWidget {
   @override
@@ -20,10 +13,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Color _iconColor = Colors.grey;
+
   Future<List<Everything>> getTopHeadlines() async {
     var response = await http.get(Uri.parse(
-        "https://newsapi.org/v2/everything?q=bitcoin&apiKey=157c9287a12840a49bc2a7d0f9228c01"));
-
+        "https://newsapi.org/v2/top-headlines?country=us&apiKey=157c9287a12840a49bc2a7d0f9228c01"));
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonData = jsonDecode(response.body);
       List<dynamic> body = jsonData['articles'];
@@ -41,8 +35,10 @@ class _HomeState extends State<Home> {
 
 // drawer functions
 
-  goToFavorites() {
-    Navigator.of(context).pushNamed("/my-favorites");
+  goToFavorites() async {
+    FirebaseAuth.instance.currentUser == null
+        ? Navigator.of(context).pushNamed("/login")
+        : Navigator.of(context).pushNamed("/favorites");
   }
 
   goToHome() {
@@ -69,6 +65,10 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushNamed("/login");
   }
 
+  goToProfileScreen() {
+    Navigator.of(context).pushNamed("/profile-screen");
+  }
+
   final user = FirebaseAuth.instance.currentUser;
 
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -76,99 +76,102 @@ class _HomeState extends State<Home> {
   signOut() async {
     // await googleSignIn.disconnect();
     await auth.signOut();
+    googleSignIn.disconnect();
+    setState(() {});
+    print("user diconnected");
 
-    Navigator.of(context).pushNamed("/auth-page");
+    Navigator.of(context).pushNamed("/home");
   }
 
-  goToProfileScreen() {
-    Navigator.of(context).pushNamed("/profile-screen");
-    // Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(builder: (context) => UserProfile()),
-    //     (route) => false);
-  }
-
-  addToFavorites() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    // var title = "my first post";
-    FirebaseAuth.instance.currentUser == null
-        ? Text("Kindly logged in first")
-        : db
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser.uid)
-            .collection("posts")
-            .add({
-            // "title": ,
-            // "description": title,
-          });
-  }
-
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   int _currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: AppBar(title: Text("Home Page"), actions: [
-              GestureDetector(onTap: signOut, child: Text("signOut")),
-              ElevatedButton(
-                onPressed: FirebaseAuth.instance.currentUser == null
-                    ? goToLoginScreen
-                    : goToProfileScreen,
-                child: FirebaseAuth.instance.currentUser == null
-                    ? Text("Login")
-                    : Text("My profile"),
-              )
-            ]),
+            appBar: AppBar(
+                title: Text(
+                  "News Express",
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500),
+                ),
+                backgroundColor: Colors.red[500],
+                actions: [
+                  TextButton(
+                    onPressed: FirebaseAuth.instance.currentUser == null
+                        ? goToLoginScreen
+                        : signOut,
+                    child: FirebaseAuth.instance.currentUser == null
+                        ? Text(
+                            "Login",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500),
+                          )
+                        : Text(
+                            "SignOut",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500),
+                          ),
+                  )
+                ]),
             bottomNavigationBar: BottomNavigationBar(
-              // type: BottomNavigationBarType.fixed,
-              items: [
-                // BottomNavigationBarItem(
-                //   icon: Icon(
-                //     Icons.home,
-                //     size: 30,
-                //     color: Colors.purple[400],
-                //   ),
-                //   label: "Popular",
-                // ),
-                // BottomNavigationBarItem(
-                //   icon: Padding(
-                //     padding: const EdgeInsets.only(right: 40),
-                //     child: Icon(
-                //       Icons.favorite,
-                //       size: 30,
-                //       color: Colors.grey,
-                //     ),
-                //   ),
-                //   label: "Sports",
-                // ),
-                // BottomNavigationBarItem(
-                //   icon: Padding(
-                //     padding: const EdgeInsets.only(left: 40),
-                //     child: Icon(
-                //       Icons.add_shopping_cart,
-                //       size: 30,
-                //       color: Colors.grey,
-                //     ),
-                //   ),
-                //   label: "Stories",
-                // ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(
-                //     Icons.person,
-                //     size: 30,
-                //     color: Colors.grey,
-                //   ),
-                //   label: "Headlines",
-                // ),
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.home,
+                    size: 30,
+                    // color: Colors.purple[400],
+                  ),
+                  label: "Home",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.align_vertical_top_rounded,
+                    size: 30,
+                    // color: Colors.grey,
+                  ),
+                  label: "Popular",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.run_circle,
+                    size: 30,
+                    color: Colors.grey,
+                  ),
+                  label: "Sports",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.amp_stories,
+                    size: 30,
+                    color: Colors.grey,
+                  ),
+                  label: "Stories",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.new_label,
+                    size: 30,
+                    color: Colors.grey,
+                  ),
+                  label: "Headlines",
+                ),
               ],
+              selectedItemColor: Colors.red[500],
               onTap: (value) {
                 final routes = [
+                  "/home",
                   "/popular-news",
                   "/sports-news",
                   "/top-stories",
-                  "/headlines"
+                  "/headlines",
                 ];
                 _currentIndex = value;
                 Navigator.of(context).pushNamed(
@@ -179,77 +182,71 @@ class _HomeState extends State<Home> {
             ),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
-                  canvasColor: Colors.blue,
+                  canvasColor: Colors.black,
                 ),
                 child: Drawer(
                   child: SafeArea(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ListView.builder(
-                        //     physics: NeverScrollableScrollPhysics(),
-                        //     shrinkWrap: true,
-                        //     itemCount: drawerLinks.length,
-                        //     itemBuilder: (context, index) {
-                        //       return Padding(
-                        //         padding: const EdgeInsets.only(top: 20),
-                        //         child: Container(
-                        //             width: MediaQuery.of(context).size.width,
-                        //             decoration: BoxDecoration(
-                        //                 border: Border(
-                        //               bottom: BorderSide(
-                        //                   width: 2, color: Colors.white),
-                        //             )),
-                        //             child: Padding(
-                        //               padding: const EdgeInsets.all(8.0),
-                        //               child: Text(
-                        //                 drawerLinks[index],
-                        //                 style: TextStyle(
-                        //                     color: Colors.white,
-                        //                     fontSize: 18,
-                        //                     fontWeight: FontWeight.w400),
-                        //               ),
-                        //             )),
-                        //       );
-                        //     }),
-
+                        Padding(
+                          padding: const EdgeInsets.all(13),
+                          child: Container(
+                            height: 35,
+                            width: 140,
+                            decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Center(
+                              child: Text(
+                                "News Express",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
-                            onTap: goToFavorites,
+                            onTap: FirebaseAuth.instance.currentUser == null
+                                ? goToLoginScreen
+                                : goToProfileScreen,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "My Favorites",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
-                                  ),
+                                  padding: const EdgeInsets.only(
+                                      top: 8, bottom: 5, left: 10),
+                                  child:
+                                      FirebaseAuth.instance.currentUser == null
+                                          ? Text(
+                                              "Login",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w400),
+                                            )
+                                          : Text(
+                                              "Profile",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
                                 )),
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
                             onTap: goToHome,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
                                   child: Text(
                                     "Home",
                                     style: TextStyle(
@@ -260,22 +257,17 @@ class _HomeState extends State<Home> {
                                 )),
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
                             onTap: goToTopStories,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
                                   child: Text(
-                                    "Top-Stories",
+                                    "Stories",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -284,20 +276,18 @@ class _HomeState extends State<Home> {
                                 )),
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
                             onTap: goToHeadlines,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.only(
+                                    top: 5,
+                                    bottom: 5,
+                                    left: 10,
+                                  ),
                                   child: Text(
                                     "Headlines",
                                     style: TextStyle(
@@ -314,15 +304,11 @@ class _HomeState extends State<Home> {
                             onTap: goToPopularNews,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
                                   child: Text(
-                                    "Popular News",
+                                    "Popular",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -337,15 +323,30 @@ class _HomeState extends State<Home> {
                             onTap: goToSportsNews,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                  bottom:
-                                      BorderSide(width: 2, color: Colors.white),
-                                )),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
                                   child: Text(
-                                    "Sports News",
+                                    "Sports",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: GestureDetector(
+                            onTap: goToFavorites,
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
+                                  child: Text(
+                                    "Favorites",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -358,24 +359,6 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 )),
-
-            // appBar: AppBar(
-            //   // elevation: 2,
-            //   // actions: [
-            //   //   Padding(
-            //   //       padding: const EdgeInsets.only(top: 16, right: 5),
-            //   //       child: Text(
-            //   //         "SignUp",
-            //   //         style: TextStyle(
-            //   //           fontSize: 20,
-            //   //           fontWeight: FontWeight.w400,
-            //   //         ),
-            //   //       )),
-
-            //   // ],
-            //   title: Center(child: Text("Home Page"),),
-
-            // ),
             body: FutureBuilder(
                 future: getTopHeadlines(),
                 builder: (BuildContext context,
@@ -385,14 +368,6 @@ class _HomeState extends State<Home> {
                     return SingleChildScrollView(
                       child: Column(
                         children: [
-                          // Row(
-                          //   children: [
-                          //     Text(
-                          //       "Top Stories",
-                          //       style: TextStyle(fontSize: 17),
-                          //     ),
-                          //   ],
-                          // ),
                           ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
@@ -401,102 +376,142 @@ class _HomeState extends State<Home> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Text("sports"),
                                 Center(
                                   child: OpenContainer(
-                                      // openColor: Colors.pink,
                                       transitionDuration: Duration(seconds: 1),
                                       transitionType:
                                           ContainerTransitionType.fadeThrough,
                                       closedBuilder: (context, action) {
                                         return Container(
-                                          child: Column(
-                                            children: [
-                                              Container(
-                                                height: 300,
-                                                width: 300,
-                                                decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                        image: everything[index]
-                                                                    .urlToImage ==
-                                                                null
-                                                            ? NetworkImage(
-                                                                "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
-                                                            : NetworkImage(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10,
+                                                right: 10,
+                                                bottom: 10),
+                                            child: Card(
+                                              elevation: 3,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    height: 250,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    decoration: BoxDecoration(
+                                                        // border: BorderRadius.circular(10),
+                                                        image: DecorationImage(
+                                                            image: everything[
+                                                                            index]
+                                                                        .urlToImage ==
+                                                                    null
+                                                                ? NetworkImage(
+                                                                    "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
+                                                                : NetworkImage(
+                                                                    everything[
+                                                                            index]
+                                                                        .urlToImage))),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 3),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                      child: ListTile(
+                                                        title: Text(
+                                                          everything[index]
+                                                                  .source
+                                                                  .name ??
+                                                              '',
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                        trailing: IconButton(
+                                                          icon: Icon(
+                                                            Icons.favorite,
+                                                            color: Colors.red,
+                                                          ),
+                                                          onPressed: () async {
+                                                            var title =
                                                                 everything[
                                                                         index]
-                                                                    .urlToImage))),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 30),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  alignment: Alignment.topLeft,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(5),
-                                                    child: Text(
-                                                      everything[index]
-                                                              .source
-                                                              .name ??
-                                                          '',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
+                                                                    .title;
+                                                            var description =
+                                                                everything[
+                                                                        index]
+                                                                    .description;
+
+                                                            final image =
+                                                                everything[
+                                                                        index]
+                                                                    .urlToImage;
+
+                                                            FirebaseFirestore
+                                                                db =
+                                                                FirebaseFirestore
+                                                                    .instance;
+
+                                                            FirebaseAuth.instance
+                                                                        .currentUser ==
+                                                                    null
+                                                                ? goToLoginScreen()
+                                                                    .pushNamed(
+                                                                        "/login")
+                                                                : db
+                                                                    .collection(
+                                                                        "users")
+                                                                    .doc(FirebaseAuth
+                                                                        .instance
+                                                                        .currentUser
+                                                                        .uid)
+                                                                    .collection(
+                                                                        "posts")
+                                                                    .add({
+                                                                    "title":
+                                                                        title,
+                                                                    "description":
+                                                                        description,
+                                                                    "image":
+                                                                        image,
+                                                                  });
+                                                            setState(() {
+                                                              _iconColor =
+                                                                  Colors.red;
+                                                            });
+                                                          },
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                              ListTile(
-                                                title: Text(
-                                                    everything[index].title ??
-                                                        ''),
-                                                subtitle: Text(
-                                                    everything[index].author ??
-                                                        ''),
-                                                leading: IconButton(
-                                                  icon: Icon(Icons.add),
-                                                  onPressed: () async {
-                                                    var title =
-                                                        everything[index].title;
-                                                    var description =
+                                                  ListTile(
+                                                    title: Text(
+                                                      everything[index].title ??
+                                                          '',
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
+                                                    subtitle: Text(
                                                         everything[index]
-                                                            .description;
-
-                                                    final image =
-                                                        everything[index]
-                                                            .urlToImage;
-
-                                                    FirebaseFirestore db =
-                                                        FirebaseFirestore
-                                                            .instance;
-
-                                                    FirebaseAuth.instance
-                                                                .currentUser ==
-                                                            null
-                                                        ? print(
-                                                            "Kindly logged in first")
-                                                        : db
-                                                            .collection("users")
-                                                            .doc(FirebaseAuth
-                                                                .instance
-                                                                .currentUser
-                                                                .uid)
-                                                            .collection("posts")
-                                                            .add({
-                                                            "title": title,
-                                                            "description":
-                                                                description,
-                                                            "image": image,
-                                                          });
-                                                  },
-                                                ),
+                                                                .author ??
+                                                            ''),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
                                         );
                                       },
