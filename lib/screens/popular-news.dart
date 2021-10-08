@@ -151,7 +151,7 @@ class _PopularNewsState extends State<PopularNews> {
         ),
         drawer: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Colors.black,
+              canvasColor: Colors.red[500],
             ),
             child: Drawer(
               child: SafeArea(
@@ -164,7 +164,7 @@ class _PopularNewsState extends State<PopularNews> {
                         height: 35,
                         width: 140,
                         decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.black,
                             borderRadius: BorderRadius.circular(10)),
                         child: Center(
                           child: Text(
@@ -180,35 +180,6 @@ class _PopularNewsState extends State<PopularNews> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: GestureDetector(
-                        onTap: FirebaseAuth.instance.currentUser == null
-                            ? goToLoginScreen
-                            : goToProfileScreen,
-                        child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 8, bottom: 5, left: 10),
-                              child: FirebaseAuth.instance.currentUser == null
-                                  ? Text(
-                                      "Login",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400),
-                                    )
-                                  : Text(
-                                      "Profile",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                            )),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: GestureDetector(
                         onTap: goToHome,
                         child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -217,25 +188,6 @@ class _PopularNewsState extends State<PopularNews> {
                                   top: 5, bottom: 5, left: 10),
                               child: Text(
                                 "Home",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            )),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: GestureDetector(
-                        onTap: goToTopStories,
-                        child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, left: 10),
-                              child: Text(
-                                "Stories",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
@@ -307,6 +259,25 @@ class _PopularNewsState extends State<PopularNews> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: GestureDetector(
+                        onTap: goToTopStories,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 5, bottom: 5, left: 10),
+                              child: Text(
+                                "Stories",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: GestureDetector(
                         onTap: goToFavorites,
                         child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -320,6 +291,35 @@ class _PopularNewsState extends State<PopularNews> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400),
                               ),
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: GestureDetector(
+                        onTap: FirebaseAuth.instance.currentUser == null
+                            ? goToLoginScreen
+                            : goToProfileScreen,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 8, bottom: 5, left: 10),
+                              child: FirebaseAuth.instance.currentUser == null
+                                  ? Text(
+                                      "Login",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400),
+                                    )
+                                  : Text(
+                                      "Profile",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400),
+                                    ),
                             )),
                       ),
                     ),
@@ -405,6 +405,23 @@ class _PopularNewsState extends State<PopularNews> {
                                                         color: Colors.red,
                                                       ),
                                                       onPressed: () async {
+                                                        var name =
+                                                            popularHeadlines[
+                                                                    index]
+                                                                .popularNewsSource
+                                                                .name;
+                                                        var author =
+                                                            popularHeadlines[
+                                                                    index]
+                                                                .author;
+                                                        var content =
+                                                            popularHeadlines[
+                                                                    index]
+                                                                .content;
+                                                        var publishedAt =
+                                                            popularHeadlines[
+                                                                    index]
+                                                                .publishedAt;
                                                         var title =
                                                             popularHeadlines[
                                                                     index]
@@ -443,6 +460,13 @@ class _PopularNewsState extends State<PopularNews> {
                                                                 "description":
                                                                     description,
                                                                 "image": image,
+                                                                "author":
+                                                                    author,
+                                                                "name": name,
+                                                                "content":
+                                                                    content,
+                                                                "publishedAt":
+                                                                    publishedAt
                                                               });
                                                       },
                                                     ),
@@ -475,15 +499,33 @@ class _PopularNewsState extends State<PopularNews> {
                                         child: SingleChildScrollView(
                                       child: Column(
                                         children: [
-                                          IconButton(
-                                              icon: Icon(
-                                                Icons.arrow_back,
-                                                color: Colors.blueAccent,
-                                              ),
-                                              onPressed: goBack),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20, left: 5, right: 5),
+                                            child: Text(
+                                              popularHeadlines[index].title ??
+                                                  '',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 5),
+                                            child: Container(
+                                                child: Text(
+                                              popularHeadlines[index]
+                                                      .publishedAt ??
+                                                  '',
+                                              style: TextStyle(fontSize: 15),
+                                            )),
+                                          ),
                                           Container(
-                                            height: 300,
-                                            width: 300,
+                                            height: 250,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
                                             decoration: BoxDecoration(
                                                 image: DecorationImage(
                                                     image: popularHeadlines[
@@ -491,19 +533,22 @@ class _PopularNewsState extends State<PopularNews> {
                                                                 .urlToImage ==
                                                             null
                                                         ? NetworkImage(
-                                                            "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
+                                                            "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg",
+                                                          )
                                                         : NetworkImage(
                                                             popularHeadlines[
                                                                     index]
                                                                 .urlToImage))),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding:
+                                                const EdgeInsets.only(left: 15),
                                             child: ListTile(
                                               title: Text(
                                                 popularHeadlines[index]
-                                                    .popularNewsSource
-                                                    .name,
+                                                        .popularNewsSource
+                                                        .name ??
+                                                    '',
                                                 style: TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.red),
@@ -516,16 +561,8 @@ class _PopularNewsState extends State<PopularNews> {
                                               ),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                child: Text(
-                                              popularHeadlines[index].title,
-                                              style: TextStyle(fontSize: 16),
-                                            )),
-                                          ),
                                           SizedBox(
-                                            height: 20,
+                                            height: 10,
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -534,8 +571,11 @@ class _PopularNewsState extends State<PopularNews> {
                                               popularHeadlines[index]
                                                       .description ??
                                                   '',
-                                              style: TextStyle(fontSize: 15),
+                                              style: TextStyle(fontSize: 18),
                                             )),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -543,17 +583,9 @@ class _PopularNewsState extends State<PopularNews> {
                                                 child: Text(
                                               popularHeadlines[index].content ??
                                                   '',
-                                              style: TextStyle(fontSize: 15),
-                                            )),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                child: Text(
-                                              popularHeadlines[index]
-                                                      .publishedAt ??
-                                                  '',
-                                              style: TextStyle(fontSize: 15),
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                              ),
                                             )),
                                           ),
                                         ],

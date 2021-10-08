@@ -13,8 +13,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Color _iconColor = Colors.grey;
-
   Future<List<Everything>> getTopHeadlines() async {
     var response = await http.get(Uri.parse(
         "https://newsapi.org/v2/top-headlines?country=us&apiKey=157c9287a12840a49bc2a7d0f9228c01"));
@@ -80,7 +78,8 @@ class _HomeState extends State<Home> {
     setState(() {});
     print("user diconnected");
 
-    Navigator.of(context).pushNamed("/home");
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Home()), (route) => false);
   }
 
   int _currentIndex = 0;
@@ -182,7 +181,7 @@ class _HomeState extends State<Home> {
             ),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
-                  canvasColor: Colors.black,
+                  canvasColor: Colors.red[500],
                 ),
                 child: Drawer(
                   child: SafeArea(
@@ -195,7 +194,7 @@ class _HomeState extends State<Home> {
                             height: 35,
                             width: 140,
                             decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: Colors.black,
                                 borderRadius: BorderRadius.circular(10)),
                             child: Center(
                               child: Text(
@@ -211,36 +210,6 @@ class _HomeState extends State<Home> {
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
-                            onTap: FirebaseAuth.instance.currentUser == null
-                                ? goToLoginScreen
-                                : goToProfileScreen,
-                            child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 8, bottom: 5, left: 10),
-                                  child:
-                                      FirebaseAuth.instance.currentUser == null
-                                          ? Text(
-                                              "Login",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w400),
-                                            )
-                                          : Text(
-                                              "Profile",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w400),
-                                            ),
-                                )),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: GestureDetector(
                             onTap: goToHome,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
@@ -249,25 +218,6 @@ class _HomeState extends State<Home> {
                                       top: 5, bottom: 5, left: 10),
                                   child: Text(
                                     "Home",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                )),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: GestureDetector(
-                            onTap: goToTopStories,
-                            child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 5, bottom: 5, left: 10),
-                                  child: Text(
-                                    "Stories",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -339,6 +289,25 @@ class _HomeState extends State<Home> {
                         Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: GestureDetector(
+                            onTap: goToTopStories,
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10),
+                                  child: Text(
+                                    "Stories",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: GestureDetector(
                             onTap: goToFavorites,
                             child: Container(
                                 width: MediaQuery.of(context).size.width,
@@ -352,6 +321,36 @@ class _HomeState extends State<Home> {
                                         fontSize: 18,
                                         fontWeight: FontWeight.w400),
                                   ),
+                                )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: GestureDetector(
+                            onTap: FirebaseAuth.instance.currentUser == null
+                                ? goToLoginScreen
+                                : goToProfileScreen,
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 8, bottom: 5, left: 10),
+                                  child:
+                                      FirebaseAuth.instance.currentUser == null
+                                          ? Text(
+                                              "Login",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w400),
+                                            )
+                                          : Text(
+                                              "Profile",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
                                 )),
                           ),
                         ),
@@ -403,7 +402,6 @@ class _HomeState extends State<Home> {
                                                             .size
                                                             .width,
                                                     decoration: BoxDecoration(
-                                                        // border: BorderRadius.circular(10),
                                                         image: DecorationImage(
                                                             image: everything[
                                                                             index]
@@ -444,6 +442,23 @@ class _HomeState extends State<Home> {
                                                             color: Colors.red,
                                                           ),
                                                           onPressed: () async {
+                                                            var name =
+                                                                everything[
+                                                                        index]
+                                                                    .source
+                                                                    .name;
+                                                            var author =
+                                                                everything[
+                                                                        index]
+                                                                    .author;
+                                                            var content =
+                                                                everything[
+                                                                        index]
+                                                                    .content;
+                                                            var publishedAt =
+                                                                everything[
+                                                                        index]
+                                                                    .publishedAt;
                                                             var title =
                                                                 everything[
                                                                         index]
@@ -479,17 +494,21 @@ class _HomeState extends State<Home> {
                                                                     .collection(
                                                                         "posts")
                                                                     .add({
+                                                                    "name":
+                                                                        name,
                                                                     "title":
                                                                         title,
                                                                     "description":
                                                                         description,
                                                                     "image":
                                                                         image,
+                                                                    "author":
+                                                                        author,
+                                                                    "content":
+                                                                        content,
+                                                                    "publishedAt":
+                                                                        publishedAt,
                                                                   });
-                                                            setState(() {
-                                                              _iconColor =
-                                                                  Colors.red;
-                                                            });
                                                           },
                                                         ),
                                                       ),
@@ -520,24 +539,50 @@ class _HomeState extends State<Home> {
                                             child: SingleChildScrollView(
                                           child: Column(
                                             children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 20, left: 5, right: 5),
+                                                child: Text(
+                                                  everything[index].title ?? '',
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 5),
+                                                child: Container(
+                                                    child: Text(
+                                                  everything[index]
+                                                          .publishedAt ??
+                                                      '',
+                                                  style:
+                                                      TextStyle(fontSize: 15),
+                                                )),
+                                              ),
                                               Container(
-                                                height: 300,
-                                                width: 300,
+                                                height: 250,
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
                                                         image: everything[index]
                                                                     .urlToImage ==
                                                                 null
                                                             ? NetworkImage(
-                                                                "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
+                                                                "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg",
+                                                              )
                                                             : NetworkImage(
                                                                 everything[
                                                                         index]
                                                                     .urlToImage))),
                                               ),
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 15),
                                                 child: ListTile(
                                                   title: Text(
                                                     everything[index]
@@ -556,18 +601,8 @@ class _HomeState extends State<Home> {
                                                   ),
                                                 ),
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                    child: Text(
-                                                  everything[index].title ?? '',
-                                                  style:
-                                                      TextStyle(fontSize: 16),
-                                                )),
-                                              ),
                                               SizedBox(
-                                                height: 20,
+                                                height: 10,
                                               ),
                                               Padding(
                                                 padding:
@@ -578,8 +613,11 @@ class _HomeState extends State<Home> {
                                                           .description ??
                                                       '',
                                                   style:
-                                                      TextStyle(fontSize: 15),
+                                                      TextStyle(fontSize: 18),
                                                 )),
+                                              ),
+                                              SizedBox(
+                                                height: 10,
                                               ),
                                               Padding(
                                                 padding:
@@ -588,20 +626,9 @@ class _HomeState extends State<Home> {
                                                     child: Text(
                                                   everything[index].content ??
                                                       '',
-                                                  style:
-                                                      TextStyle(fontSize: 15),
-                                                )),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                    child: Text(
-                                                  everything[index]
-                                                          .publishedAt ??
-                                                      '',
-                                                  style:
-                                                      TextStyle(fontSize: 15),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                  ),
                                                 )),
                                               ),
                                             ],

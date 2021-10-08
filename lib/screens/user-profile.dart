@@ -38,13 +38,23 @@ class _UserProfileState extends State<UserProfile> {
     Navigator.of(context).pushNamed("/sign-up");
   }
 
+  goToHome() {
+    Navigator.of(context).pushNamed("/home");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
-              title: Center(child: Text("My Profile")),
+              title: Center(child: Text("Account Details")),
+              backgroundColor: Colors.red,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: goToHome,
+              ),
+              actions: [Icon(Icons.logout)],
             ),
             body: FutureBuilder(
                 future: currentUserProfile(),
@@ -61,6 +71,7 @@ class _UserProfileState extends State<UserProfile> {
                             child: Center(
                               child: CircleAvatar(
                                 radius: 100,
+                                backgroundColor: Colors.transparent,
                                 backgroundImage: NetworkImage(image ?? ''),
                               ),
                             ),
@@ -68,7 +79,7 @@ class _UserProfileState extends State<UserProfile> {
                           Padding(
                             padding: const EdgeInsets.only(top: 20),
                             child: Text(
-                              "Name: $userName",
+                              "$userName",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w500),
                             ),
@@ -76,53 +87,12 @@ class _UserProfileState extends State<UserProfile> {
                           Padding(
                             padding: const EdgeInsets.only(top: 20),
                             child: Text(
-                              "Email: $email",
+                              "$email",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w500),
                             ),
                           ),
-                          ElevatedButton(
-                              onPressed: signOut, child: Text("sign out"))
-                        ])
-                        // body: Column(
-                        //   children: [
-                        //     Center(
-                        //       child: CircleAvatar(
-                        //         radius: 100,
-                        //         backgroundImage: NetworkImage(user.photoURL ?? ''),
-                        //       ),
-                        //     ),
-                        //     Padding(
-                        //       padding: const EdgeInsets.only(top: 20),
-                        //       child: Text(
-                        //         "Name: ${user.displayName}",
-                        //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                        //       ),
-                        //     ),
-                        //     Padding(
-                        //       padding: const EdgeInsets.only(top: 20),
-                        //       child: Text(
-                        //         "Email: ${user.email}",
-                        //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                        //       ),
-                        //     ),
-                        //     Padding(
-                        //       padding: const EdgeInsets.only(top: 20),
-                        //       child: Text(
-                        //         "Phone Number: ${user.phoneNumber ?? 'Not provided'} ",
-                        //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                        //       ),
-                        //     ),
-                        //     Padding(
-                        //       padding: const EdgeInsets.only(top: 20),
-                        //       child: Text(
-                        //         "Email: ${user.emailVerified}",
-                        //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
-                        ),
+                        ])),
                   );
                 })));
   }

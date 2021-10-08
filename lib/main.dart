@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
               "/sports-news": (context) => SportsNews(),
               "/sign-up": (context) => SignUp(),
               "/login": (context) => LoginScreen(),
-              "/my-favorites": (context) => MyFavorites(),
+              "/favorites": (context) => MyFavorites(),
               "/profile-screen": (context) => UserProfile(),
               "/auth-page": (context) => AuthPagesMove(),
             },

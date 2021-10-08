@@ -10,6 +10,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -44,6 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   loginWithEmailPassword() async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
     FirebaseAuth auth = FirebaseAuth.instance;
 
     final String email = emailController.text;
@@ -58,6 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.of(context).pushNamed("/sign-up");
   }
 
+  goToHome() {
+    Navigator.of(context).pushNamed("/home");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,9 +77,15 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 5, left: 5),
-                  child: Icon(Icons.arrow_back),
+                GestureDetector(
+                  onTap: goToHome,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 5, left: 5),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.red,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 15,
@@ -82,112 +97,144 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: NetworkImage(
-                                "https://previews.123rf.com/images/businessvector/businessvector1510/businessvector151000024/45788264-newspaper-icon.jpg"))),
+                                "https://mapolypress.files.wordpress.com/2018/04/news1.png"))),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      prefixIcon: Icon(
-                        Icons.email,
-                        color: Colors.orange[300],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xffF8F0E3),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      prefixIcon: Icon(
-                        Icons.lock,
-                        color: Colors.orange[300],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xffF8F0E3),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Center(
-                  child: Container(
-                      width: 150,
-                      child: TextButton(
-                          onPressed: loginWithEmailPassword,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                              "Login",
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 15, left: 20, right: 20),
+                        child: TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value.isNotEmpty && value.length > 7) {
+                              return null;
+                            } else if (value.length < 7 && value.isNotEmpty) {
+                              return "Your email address is too short";
+                            } else {
+                              return "Please enter your email address";
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Email",
+                            prefixIcon: Icon(
+                              Icons.email,
+                              color: Colors.red[500],
                             ),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.orange[500]),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                              )))),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 13, bottom: 10),
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don't have an account? "),
-                        GestureDetector(
-                            onTap: goToSignUpScreen,
-                            child: Text(
-                              "Create one",
-                              style: TextStyle(
-                                  fontSize: 16, color: Colors.orange[400]),
-                            )),
-                      ],
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Container(
-                      width: 180,
-                      child: TextButton(
-                          onPressed: loginWithGoogle,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                              "Login with Google",
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
                             ),
+                            filled: true,
+                            fillColor: Color(0xffF8F0E3),
                           ),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.orange[500]),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                              )))),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 15, left: 20, right: 20),
+                        child: TextFormField(
+                          controller: passwordController,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return "Please enter your password";
+                            } else if (value.length < 6) {
+                              return "Your password is too short";
+                            } else {
+                              return null;
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: Icon(
+                              Icons.lock,
+                              color: Colors.red[500],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Color(0xffF8F0E3),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Center(
+                        child: Container(
+                            width: 150,
+                            child: TextButton(
+                                onPressed: loginWithEmailPassword,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.red[400]),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30)),
+                                    )))),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 13, bottom: 10),
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Don't have an account? "),
+                              GestureDetector(
+                                  onTap: goToSignUpScreen,
+                                  child: Text(
+                                    "Create one",
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.red[500]),
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Container(
+                            width: 180,
+                            child: TextButton(
+                                onPressed: loginWithGoogle,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Text(
+                                    "Login with Google",
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.red[400]),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30)),
+                                    )))),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

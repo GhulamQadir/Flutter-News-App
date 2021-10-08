@@ -150,7 +150,7 @@ class _HeadlinesState extends State<Headlines> {
         ),
         drawer: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Colors.black,
+              canvasColor: Colors.red[500],
             ),
             child: Drawer(
               child: SafeArea(
@@ -163,7 +163,7 @@ class _HeadlinesState extends State<Headlines> {
                         height: 35,
                         width: 140,
                         decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.black,
                             borderRadius: BorderRadius.circular(10)),
                         child: Center(
                           child: Text(
@@ -179,35 +179,6 @@ class _HeadlinesState extends State<Headlines> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: GestureDetector(
-                        onTap: FirebaseAuth.instance.currentUser == null
-                            ? goToLoginScreen
-                            : goToProfileScreen,
-                        child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 8, bottom: 5, left: 10),
-                              child: FirebaseAuth.instance.currentUser == null
-                                  ? Text(
-                                      "Login",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400),
-                                    )
-                                  : Text(
-                                      "Profile",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                            )),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: GestureDetector(
                         onTap: goToHome,
                         child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -216,25 +187,6 @@ class _HeadlinesState extends State<Headlines> {
                                   top: 5, bottom: 5, left: 10),
                               child: Text(
                                 "Home",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            )),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: GestureDetector(
-                        onTap: goToTopStories,
-                        child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 5, bottom: 5, left: 10),
-                              child: Text(
-                                "Stories",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
@@ -306,6 +258,25 @@ class _HeadlinesState extends State<Headlines> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: GestureDetector(
+                        onTap: goToTopStories,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 5, bottom: 5, left: 10),
+                              child: Text(
+                                "Stories",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: GestureDetector(
                         onTap: goToFavorites,
                         child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -319,6 +290,35 @@ class _HeadlinesState extends State<Headlines> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400),
                               ),
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: GestureDetector(
+                        onTap: FirebaseAuth.instance.currentUser == null
+                            ? goToLoginScreen
+                            : goToProfileScreen,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 8, bottom: 5, left: 10),
+                              child: FirebaseAuth.instance.currentUser == null
+                                  ? Text(
+                                      "Login",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400),
+                                    )
+                                  : Text(
+                                      "Profile",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400),
+                                    ),
                             )),
                       ),
                     ),
@@ -404,6 +404,19 @@ class _HeadlinesState extends State<Headlines> {
                                                         color: Colors.red,
                                                       ),
                                                       onPressed: () async {
+                                                        var name =
+                                                            headlines[index]
+                                                                .headlinesSource
+                                                                .name;
+                                                        var author =
+                                                            headlines[index]
+                                                                .author;
+                                                        var content =
+                                                            headlines[index]
+                                                                .content;
+                                                        var publishedAt =
+                                                            headlines[index]
+                                                                .publishedAt;
                                                         var title =
                                                             headlines[index]
                                                                 .title;
@@ -414,7 +427,6 @@ class _HeadlinesState extends State<Headlines> {
                                                         final image =
                                                             headlines[index]
                                                                 .urlToImage;
-
                                                         FirebaseFirestore db =
                                                             FirebaseFirestore
                                                                 .instance;
@@ -439,6 +451,13 @@ class _HeadlinesState extends State<Headlines> {
                                                                 "description":
                                                                     description,
                                                                 "image": image,
+                                                                "author":
+                                                                    author,
+                                                                "name": name,
+                                                                "content":
+                                                                    content,
+                                                                "publishedAt":
+                                                                    publishedAt
                                                               });
                                                       },
                                                     ),
@@ -468,33 +487,52 @@ class _HeadlinesState extends State<Headlines> {
                                         child: SingleChildScrollView(
                                       child: Column(
                                         children: [
-                                          IconButton(
-                                              icon: Icon(
-                                                Icons.arrow_back,
-                                                color: Colors.blueAccent,
-                                              ),
-                                              onPressed: goBack),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20, left: 5, right: 5),
+                                            child: Text(
+                                              headlines[index].title ?? '',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 5),
+                                            child: Container(
+                                                child: Text(
+                                              headlines[index].publishedAt ??
+                                                  '',
+                                              style: TextStyle(fontSize: 15),
+                                            )),
+                                          ),
                                           Container(
-                                            height: 300,
-                                            width: 300,
+                                            height: 250,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
                                             decoration: BoxDecoration(
                                                 image: DecorationImage(
                                                     image: headlines[index]
                                                                 .urlToImage ==
                                                             null
                                                         ? NetworkImage(
-                                                            "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg")
+                                                            "https://www.northampton.ac.uk/wp-content/uploads/2018/11/default-svp_news.jpg",
+                                                          )
                                                         : NetworkImage(
                                                             headlines[index]
                                                                 .urlToImage))),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding:
+                                                const EdgeInsets.only(left: 15),
                                             child: ListTile(
                                               title: Text(
                                                 headlines[index]
-                                                    .headlinesSource
-                                                    .name,
+                                                        .headlinesSource
+                                                        .name ??
+                                                    '',
                                                 style: TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.red),
@@ -505,16 +543,8 @@ class _HeadlinesState extends State<Headlines> {
                                               ),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                child: Text(
-                                              headlines[index].title,
-                                              style: TextStyle(fontSize: 16),
-                                            )),
-                                          ),
                                           SizedBox(
-                                            height: 20,
+                                            height: 10,
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -522,26 +552,22 @@ class _HeadlinesState extends State<Headlines> {
                                                 child: Text(
                                               headlines[index].description ??
                                                   '',
-                                              style: TextStyle(fontSize: 15),
+                                              style: TextStyle(fontSize: 18),
                                             )),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                child: Text(
-                                              headlines[index].content ?? '',
-                                              style: TextStyle(fontSize: 15),
-                                            )),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                child: Text(
-                                              headlines[index].publishedAt ??
-                                                  '',
-                                              style: TextStyle(fontSize: 15),
-                                            )),
-                                          ),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                  child: Text(
+                                                headlines[index].content ?? '',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                              )))
                                         ],
                                       ),
                                     ));

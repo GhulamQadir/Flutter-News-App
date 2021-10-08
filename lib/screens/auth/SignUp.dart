@@ -13,6 +13,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -29,6 +31,9 @@ class _SignUpState extends State<SignUp> {
   }
 
   void register() async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -92,119 +97,157 @@ class _SignUpState extends State<SignUp> {
                 SizedBox(
                   height: 20,
                 ),
-                GestureDetector(
-                  onTap: pickImage,
-                  child: Container(
-                    height: 200,
-                    width: 250,
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                      image: imagePath == null
-                          ? NetworkImage(
-                              "https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-camera-512.png")
-                          : FileImage(File(imagePath)),
-                      // NetworkImage(
-                      //     "https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-camera-512.png")
-                    )),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: userNameController,
-                    decoration: InputDecoration(
-                      labelText: "Username",
-                      prefixIcon: Icon(
-                        Icons.person,
-                        color: Colors.orange[300],
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: pickImage,
+                        child: Container(
+                          height: 130,
+                          width: 150,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                            image: imagePath == null
+                                ? NetworkImage(
+                                    "https://www.shareicon.net/data/512x512/2015/09/28/647719_camera_512x512.png")
+                                : FileImage(File(imagePath)),
+                          )),
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xffF8F0E3),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      prefixIcon: Icon(
-                        Icons.email,
-                        color: Colors.orange[300],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xffF8F0E3),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      prefixIcon: Icon(
-                        Icons.lock,
-                        color: Colors.orange[300],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Color(0xffF8F0E3),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                    width: 150,
-                    child: TextButton(
-                        onPressed: register,
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 15, left: 20, right: 20),
+                        child: TextFormField(
+                          controller: userNameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your name';
+                            } else if (value.length < 3) {
+                              return "Your name is too short";
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Username",
+                            prefixIcon: Icon(
+                              Icons.person,
+                              color: Colors.red[500],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Color(0xffF8F0E3),
                           ),
                         ),
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.orange[500]),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                            )))),
-                Padding(
-                  padding: const EdgeInsets.only(top: 13, bottom: 10),
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Already have an account? "),
-                        GestureDetector(
-                          onTap: goToLoginScreen,
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                                fontSize: 17, color: Colors.orange[400]),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 15, left: 20, right: 20),
+                        child: TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value.isNotEmpty && value.length > 7) {
+                              return null;
+                            } else if (value.length < 7 && value.isNotEmpty) {
+                              return "Your email address is too short";
+                            } else {
+                              return "Please enter your email address";
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Email",
+                            prefixIcon: Icon(
+                              Icons.email,
+                              color: Colors.red[500],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Color(0xffF8F0E3),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 15, left: 20, right: 20),
+                        child: TextFormField(
+                          controller: passwordController,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return "Please enter your password";
+                            } else if (value.length < 6) {
+                              return "Your password is too short";
+                            } else {
+                              return null;
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: Icon(
+                              Icons.lock,
+                              color: Colors.red[500],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Color(0xffF8F0E3),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                          width: 150,
+                          child: TextButton(
+                              onPressed: register,
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  "Sign Up",
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.white),
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.red[400]),
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30)),
+                                  )))),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 13, bottom: 10),
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Already have an account? "),
+                              GestureDetector(
+                                onTap: goToLoginScreen,
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.red[500]),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
