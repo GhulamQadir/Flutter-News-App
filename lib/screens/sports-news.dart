@@ -68,8 +68,6 @@ class _SportsNewsState extends State<SportsNews> {
     Navigator.of(context).pushNamed("/profile-screen");
   }
 
-  int _currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

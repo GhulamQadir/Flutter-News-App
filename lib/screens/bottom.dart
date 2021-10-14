@@ -177,27 +177,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
                   ],
                 ),
               ]),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
-              //     GestureDetector(
-              //       onTap: () {
-              //         setState(() {
-              //           currentScreen = Home();
-              //           currentTab = 0;
-              //         });
-              //       },
-              //       child: Text("Home",
-              //           style: TextStyle(
-              //               color:
-              //                   currentTab == 0 ? Colors.white : Colors.black)),
-              //     ),
-              //     Text("Popular"),
-              //     Text("Sports"),
-              //     Text("Stories"),
-              //     Text("Headlines"),
-              //   ],
-              // )
             ],
           ),
         ),

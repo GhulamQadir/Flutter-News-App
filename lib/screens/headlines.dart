@@ -68,8 +68,6 @@ class _HeadlinesState extends State<Headlines> {
     Navigator.of(context).pushNamed("/profile-screen");
   }
 
-  int _currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

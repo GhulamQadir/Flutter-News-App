@@ -86,12 +86,6 @@ class _HomeState extends State<Home> {
         MaterialPageRoute(builder: (context) => Home()), (route) => false);
   }
 
-  // int _currentIndex = 0;
-
-  // int currentTab = 0;
-
-  // Widget currentScreen = Home();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
