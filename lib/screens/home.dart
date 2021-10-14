@@ -2,7 +2,12 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutternewsapp/models/everything-model.dart';
+import 'package:flutternewsapp/screens/headlines.dart';
+import 'package:flutternewsapp/screens/popular-news.dart';
+import 'package:flutternewsapp/screens/sports-news.dart';
+import 'package:flutternewsapp/screens/top-stories.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:animations/animations.dart';
@@ -40,7 +45,7 @@ class _HomeState extends State<Home> {
   }
 
   goToHome() {
-    Navigator.of(context).pushNamed("/home");
+    Navigator.of(context).pushNamed("/bottom");
   }
 
   goToTopStories() {
@@ -72,7 +77,6 @@ class _HomeState extends State<Home> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
   signOut() async {
-    // await googleSignIn.disconnect();
     await auth.signOut();
     googleSignIn.disconnect();
     setState(() {});
@@ -82,7 +86,12 @@ class _HomeState extends State<Home> {
         MaterialPageRoute(builder: (context) => Home()), (route) => false);
   }
 
-  int _currentIndex = 0;
+  // int _currentIndex = 0;
+
+  // int currentTab = 0;
+
+  // Widget currentScreen = Home();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -119,66 +128,6 @@ class _HomeState extends State<Home> {
                           ),
                   )
                 ]),
-            bottomNavigationBar: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.home,
-                    size: 30,
-                    // color: Colors.purple[400],
-                  ),
-                  label: "Home",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.align_vertical_top_rounded,
-                    size: 30,
-                    // color: Colors.grey,
-                  ),
-                  label: "Popular",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.run_circle,
-                    size: 30,
-                    color: Colors.grey,
-                  ),
-                  label: "Sports",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.amp_stories,
-                    size: 30,
-                    color: Colors.grey,
-                  ),
-                  label: "Stories",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.new_label,
-                    size: 30,
-                    color: Colors.grey,
-                  ),
-                  label: "Headlines",
-                ),
-              ],
-              selectedItemColor: Colors.red[500],
-              onTap: (value) {
-                final routes = [
-                  "/home",
-                  "/popular-news",
-                  "/sports-news",
-                  "/top-stories",
-                  "/headlines",
-                ];
-                _currentIndex = value;
-                Navigator.of(context).pushNamed(
-                  routes[value],
-                );
-              },
-              currentIndex: _currentIndex,
-            ),
             drawer: Theme(
                 data: Theme.of(context).copyWith(
                   canvasColor: Colors.red[500],
@@ -509,6 +458,10 @@ class _HomeState extends State<Home> {
                                                                     "publishedAt":
                                                                         publishedAt,
                                                                   });
+                                                            print(
+                                                                "added to favorites");
+                                                            // EasyLoading.showSuccess(
+                                                            //     'Added to favourites');
                                                           },
                                                         ),
                                                       ),
@@ -644,7 +597,9 @@ class _HomeState extends State<Home> {
                     );
                   }
                   return Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
                   );
                 })));
   }

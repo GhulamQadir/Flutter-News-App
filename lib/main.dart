@@ -10,11 +10,32 @@ import 'package:flutternewsapp/screens/sports-news.dart';
 import 'package:flutternewsapp/screens/top-stories.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutternewsapp/screens/user-profile.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import 'screens/bottom.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MyApp());
+
+  configLoading();
+}
+
+void configLoading() {
+  EasyLoading.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..loadingStyle = EasyLoadingStyle.dark
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.yellow
+    ..backgroundColor = Colors.green
+    ..indicatorColor = Colors.yellow
+    ..textColor = Colors.yellow
+    ..maskColor = Colors.blue.withOpacity(0.5)
+    ..userInteractions = true
+    ..dismissOnTap = false;
 }
 
 class MyApp extends StatelessWidget {
@@ -38,7 +59,7 @@ class MyApp extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: Home(),
+            home: BottomNavigation(),
             routes: {
               "/home": (context) => Home(),
               "/top-stories": (context) => TopStories(),
@@ -50,6 +71,7 @@ class MyApp extends StatelessWidget {
               "/favorites": (context) => MyFavorites(),
               "/profile-screen": (context) => UserProfile(),
               "/auth-page": (context) => AuthPagesMove(),
+              "/bottom": (context) => BottomNavigation()
             },
           );
         }

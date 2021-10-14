@@ -40,6 +40,9 @@ dependencies:
   # image picker
   image_picker:
 
+  # loading
+  flutter_easyloading:
+
     
 
   # The following adds the Cupertino Icons font to your application.

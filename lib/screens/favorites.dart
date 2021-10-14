@@ -27,6 +27,10 @@ class _MyFavoritesState extends State<MyFavorites> {
     super.initState();
   }
 
+  goToHome() {
+    Navigator.of(context).pushNamed("/home");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,6 +44,8 @@ class _MyFavoritesState extends State<MyFavorites> {
               appBar: AppBar(
                 title: Center(child: Text("My Favorites")),
                 backgroundColor: Colors.red,
+                leading: GestureDetector(
+                    onTap: goToHome, child: Icon(Icons.arrow_back)),
               ),
               body: Center(
                 child: Container(
@@ -68,21 +74,6 @@ class _MyFavoritesState extends State<MyFavorites> {
                         return SingleChildScrollView(
                           child: Column(
                             children: [
-                              // Image.network(data["image"]),
-                              // Text(
-                              //   "Title is:   ${data["title"]} ?? ''",
-                              //   style: TextStyle(fontSize: 18),
-                              // ),
-                              // SizedBox(
-                              //   height: 30,
-                              // ),
-                              // Text(
-                              //   "Description is:   ${data["description"]} ?? ''",
-                              //   style: TextStyle(fontSize: 16),
-                              // ),
-                              // SizedBox(
-                              //   height: 30,
-                              // ),
                               Center(
                                 child: OpenContainer(
                                     transitionDuration: Duration(seconds: 1),

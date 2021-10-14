@@ -29,7 +29,7 @@ class _HeadlinesState extends State<Headlines> {
   }
 
   goBack() {
-    Navigator.of(context).pushNamed("/home");
+    Navigator.of(context).pushNamed("/bottom");
   }
 
 // drawer functions
@@ -41,7 +41,7 @@ class _HeadlinesState extends State<Headlines> {
   }
 
   goToHome() {
-    Navigator.of(context).pushNamed("/home");
+    Navigator.of(context).pushNamed("/bottom");
   }
 
   goToTopStories() {
@@ -92,62 +92,6 @@ class _HeadlinesState extends State<Headlines> {
                     color: Colors.white,
                   ))
             ]),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.red[500],
-          unselectedItemColor: Colors.grey,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                size: 30,
-              ),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.align_vertical_top_rounded,
-                size: 30,
-              ),
-              label: "Popular",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.run_circle,
-                size: 30,
-              ),
-              label: "Sports",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.amp_stories,
-                size: 30,
-              ),
-              label: "Stories",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.new_label,
-                size: 30,
-              ),
-              label: "Headlines",
-            ),
-          ],
-          onTap: (value) {
-            final routes = [
-              "/home",
-              "/popular-news",
-              "/sports-news",
-              "/top-stories",
-              "/headlines",
-            ];
-            _currentIndex = value;
-            Navigator.of(context).pushNamed(
-              routes[value],
-            );
-          },
-          currentIndex: _currentIndex,
-        ),
         drawer: Theme(
             data: Theme.of(context).copyWith(
               canvasColor: Colors.red[500],
@@ -581,7 +525,9 @@ class _HeadlinesState extends State<Headlines> {
                 );
               }
               return Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: Colors.red,
+                ),
               );
             }),
       ),
